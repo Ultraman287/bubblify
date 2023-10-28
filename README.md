@@ -1,3 +1,6 @@
+# bubblify
+A web application to automatically cluster emails into customized bubbles.
+
 # Welcome to Reflex!
 
 This is the base Reflex template - installed when you run `reflex init`.
