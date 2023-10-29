@@ -17,7 +17,7 @@ def settings() -> rx.Component:
     
     _main = rx.vstack(
         rx.button("Connect to Gmail", on_click=State.connect_google),
-        rx.cond(State.have_emails, rx.text("We've got your emails!"),  rx.text("You don't have emails, lonely fuck!")),
+        rx.cond(State.have_emails, rx.text("We've got your emails!"),  rx.text("You don't have emails!")),
     )
     
     return _main
