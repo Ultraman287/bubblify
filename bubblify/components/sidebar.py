@@ -75,11 +75,11 @@ def sidebar() -> rx.Component:
                 padding="1em",
 
             ),
-            rx.spacer(),
         ),
         display="flex",
         flex_direction="column",
         position="fixed",
         right="0",
         bottom="0",
+        z_index="1",
     )
