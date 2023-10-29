@@ -121,6 +121,8 @@ def template(
                 align_items="flex-start",
                 transition="left 0.5s, width 0.5s",
                 position="relative",
+                width="100%",
+                height="100%",
             )
 
         return templated_page

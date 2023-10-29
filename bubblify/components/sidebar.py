@@ -19,13 +19,13 @@ def sidebar_item(text: str, icon: str, url: str) -> rx.Component:
     # Whether the item is active.
     active = (State.router.page.path == f"/{text.lower()}") | (
         (State.router.page.path == "/") & text == "Home"
-    )
+    ) | (State.router.page.path == "/add-cluster") & (text == "Add Cluster")
+
 
     return rx.link(
         rx.hstack(
             rx.image(
                 src=icon,
-                height="2.5em",
                 padding="0.5em",
             ),
             bg=rx.cond(
@@ -40,9 +40,10 @@ def sidebar_item(text: str, icon: str, url: str) -> rx.Component:
             ),
             border_radius="50%",
             box_shadow=styles.box_shadow,
-            width="70px",
-            height="70px",
-            padding_x="1em",
+            width="80px",
+            height="80px",
+            padding="0.9em",
+            margin="0.5em",
         ),
         href=url,
     )
@@ -72,14 +73,13 @@ def sidebar() -> rx.Component:
                 overflow_y="auto",
                 align_items="flex-start",
                 padding="1em",
+
             ),
             rx.spacer(),
-            height="100dvh",
         ),
         display="flex",
         flex_direction="column",
         position="fixed",
-        top="1",
         right="0",
-        border_right=styles.border,
+        bottom="0",
     )
