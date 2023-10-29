@@ -9,4 +9,12 @@ class State(rx.State):
     The base state is used to store general vars used throughout the app.
     """
 
-    pass
+    clusters = {}
+
+    def set_clusters(self, clusters):
+        """Set the clusters.
+
+        Args:
+            clusters: The clusters.
+        """
+        self.clusters = clusters
