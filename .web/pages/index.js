@@ -3,10 +3,9 @@ import { useRouter } from "next/router"
 import { Event, getAllLocalStorageItems, getRefValue, getRefValues, isTrue, preventDefault, refs, spreadArraysOrObjects, uploadFiles, useEventLoop } from "/utils/state"
 import { ColorModeContext, EventLoopContext, initialEvents, StateContext } from "/utils/context.js"
 import "focus-visible/dist/focus-visible"
-import { Box, Code, Heading, HStack, Image, Link, Menu, MenuButton, MenuDivider, MenuItem, MenuList, Modal, ModalBody, ModalContent, ModalHeader, ModalOverlay, Spacer, Text, VStack } from "@chakra-ui/react"
+import { Box, Circle, HStack, Image, Link, Modal, ModalBody, ModalContent, ModalHeader, ModalOverlay, Text, VStack } from "@chakra-ui/react"
 import { getEventURL } from "/utils/state.js"
 import NextLink from "next/link"
-import { HamburgerIcon } from "@chakra-ui/icons"
 import NextHead from "next/head"
 
 
@@ -64,8 +63,9 @@ export default function Component() {
   <Fragment/>
 )}
 </Fragment>
-  <HStack alignItems={`flex-start`} sx={{"transition": "left 0.5s, width 0.5s", "position": "relative", "width": "100%", "height": "100%"}}>
-  <Box sx={{"display": "flex", "flexDirection": "column", "position": "fixed", "right": "0", "bottom": "0"}}>
+  <HStack alignItems={`flex-start`} sx={{"display": "flex", "transition": "left 0.5s, width 0.5s", "position": "relative", "width": "100%", "height": "100%"}}>
+  <Box sx={{"width": "100vw", "height": "100vh"}}>
+  <Box sx={{"display": "flex", "flexDirection": "column", "position": "fixed", "right": "0", "bottom": "0", "zIndex": "1"}}>
   <VStack>
   <VStack alignItems={`flex-start`} sx={{"width": "100%", "overflowY": "auto", "padding": "1em"}}>
   <Link as={NextLink} href={`/`}>
@@ -84,62 +84,28 @@ export default function Component() {
 </HStack>
 </Link>
 </VStack>
-  <Spacer/>
 </VStack>
 </Box>
-  <Box sx={{"paddingTop": "5em", "paddingX": ["auto", "2em"]}}>
-  <Box sx={{"width": "100%", "alignItems": "flex-start", "boxShadow": "0px 0px 0px 1px rgba(84, 82, 95, 0.14)", "borderRadius": "0.375rem", "padding": "1em", "marginBottom": "2em"}}>
-  <VStack>
-  <Heading sx={{"fontSize": "3em"}}>
-  {`Home`}
-</Heading>
+  <Box sx={{"width": "100%", "height": "100%", "borderRadius": "0.375rem"}}>
+  <VStack sx={{"width": "100%", "height": "100%", "position": "relative"}}>
+  {state.clusters.map((tezvtkle, i) => (
+  <Circle key={i} onMouseEnter={(_e) => addEvents([Event("state.mouse_enter", {cluster:tezvtkle})], (_e))} onMouseLeave={(_e) => addEvents([Event("state.mouse_leave", {cluster:tezvtkle})], (_e))} sx={{"display": "flex", "flexDirection": "column", "width": (tezvtkle.at(state.diameter_index) + "px"), "height": (tezvtkle.at(state.diameter_index) + "px"), "position": "absolute", "top": (("calc(50% + " + tezvtkle.at(state.positiony_index)) + "px)"), "left": (("calc(50% + " + tezvtkle.at(state.positionx_index)) + "px)"), "backgroundColor": tezvtkle.at(state.color_index), "transition": "all 0.5s ease"}}>
   <Text>
-  {`Welcome to Reflex!`}
+  {tezvtkle.at(state.size_index)}
 </Text>
   <Text>
-  {`You can edit this page in `}
-  <Code>
-  {`{your_app}/pages/index.py`}
-</Code>
+  {tezvtkle.at(state.name_index)}
 </Text>
+  <Text>
+  {tezvtkle.at(state.positionx_index)}
+</Text>
+  <Text>
+  {tezvtkle.at(state.positiony_index)}
+</Text>
+</Circle>
+))}
 </VStack>
 </Box>
-</Box>
-  <Spacer/>
-  <Box sx={{"position": "fixed", "right": "1.5em", "top": "1.5em", "zIndex": "500"}}>
-  <Menu>
-  <MenuButton sx={{"width": "3em", "height": "3em", "backgroundColor": "white", "border": "3px solid #F4F3F6", "borderRadius": "0.375rem"}}>
-  <HamburgerIcon sx={{"size": "4em", "color": "black"}}/>
-</MenuButton>
-  <MenuList>
-  <MenuItem sx={{"_hover": {"bg": "#F5EFFE"}}}>
-  <Link as={NextLink} href={`/`} sx={{"width": "100%"}}>
-  {`Home`}
-</Link>
-</MenuItem>
-  <MenuItem sx={{"_hover": {"bg": "#F5EFFE"}}}>
-  <Link as={NextLink} href={`/add-cluster`} sx={{"width": "100%"}}>
-  {`Add Cluster`}
-</Link>
-</MenuItem>
-  <MenuItem sx={{"_hover": {"bg": "#F5EFFE"}}}>
-  <Link as={NextLink} href={`/settings`} sx={{"width": "100%"}}>
-  {`Settings`}
-</Link>
-</MenuItem>
-  <MenuDivider/>
-  <MenuItem sx={{"_hover": {"bg": "#F5EFFE"}}}>
-  <Link as={NextLink} href={`https://github.com/reflex-dev`} sx={{"width": "100%"}}>
-  {`About`}
-</Link>
-</MenuItem>
-  <MenuItem sx={{"_hover": {"bg": "#F5EFFE"}}}>
-  <Link as={NextLink} href={`mailto:founders@=reflex.dev`} sx={{"width": "100%"}}>
-  {`Contact`}
-</Link>
-</MenuItem>
-</MenuList>
-</Menu>
 </Box>
 </HStack>
   <NextHead>
