@@ -7,6 +7,7 @@ from bubblify.components.sidebar import sidebar
 from typing import Callable
 
 import reflex as rx
+from bubblify.state import State
 
 # Meta tags for the app.
 default_meta = [
@@ -114,6 +115,17 @@ def template(
                         page_content(),
                         **styles.template_content_style,
                     ),
+                    rx.cond(State.in_focus, rx.box(
+                    "",
+                    position="fixed",
+                    width="100vw",
+                    height="100vh",
+                    top="0", 
+                    left="0",
+                    background_color="rgba(0, 0, 0, 0.1)",
+                    z_index="2",
+                    on_click=State.bubble_close,
+                ), rx.text("")),
                     **styles.template_page_style,
                 ),
                 display="flex",
