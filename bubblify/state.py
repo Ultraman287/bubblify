@@ -1,12 +1,18 @@
 """Base state for the app."""
-from bubblify.helpers.sql_helpers import get_json_from_database, create_categories, insert_email_info, execute_sql_query, conn, insert_categorized_email, create_emails_info_table
+
+import os
+
 import reflex as rx
+
 from collections import Counter
 
 import random
 
 from bubblify import styles
+
 from .utils.auth import Auth
+
+from bubblify.helpers.sql_helpers import get_json_from_database, create_categories, insert_email_info, execute_sql_query, conn, insert_categorized_email, create_emails_info_table
 from quickstart import main
 
 class State(rx.State):
@@ -121,6 +127,7 @@ class State(rx.State):
         }
     ]
 
+
     clusters: list[tuple[str, int, list, float, float, float]] = []
     index_index: int = 0
     name_index: int = 1
@@ -132,14 +139,14 @@ class State(rx.State):
     color_index: int = 7
 
     colors: list[str] = ["#d27cbf", "#d2bf7c", "#7cb3d2", "#7cd2be", "#d27c7c", "#7cd2b3", "#d27cbf", "#7cbfd2"]
-    clusters : dict[str, list[dict[str, str]]] = {"Work": [{"message": "Email 1"}, {"message": "Email 2"}], "School": [{"message": "Email 3"}, {"message": "Email 4"}]}
     cluster_names : list[str] = ["Work", "School"]
     new_cluster_name : str = ""
     current_email: str = ""
     current_password: str = ""
     authenticated_user: bool = False
-    email_list: list[dict[str, str]] 
     have_emails: bool = False
+    email_data: list[dict] = []
+    
 
     def get_clusters(self):
         """Get the clusters from the database.
@@ -259,13 +266,65 @@ class State(rx.State):
         new_cluster[self.diameter_index] = cluster[self.diameter_index] / 1.1
 
         self.clusters[cluster[self.index_index]] = tuple(new_cluster)
+        self.clusters = cluster
+    
+
+    
+    def add_cluster(self, cluster_name):
+        """
+        Args:
+            cluster_name: The name of the cluster to add.
+        """
+        if cluster_name not in self.clusters:    
+            self.clusters[cluster_name] = []
+            self.cluster_names.append(cluster_name)
+    
+    def delete_cluster(self, cluster_name):
+        """
+        Args:
+            cluster_name: The name of the cluster to delete.
+        """
+        for i in range(len(self.clusters)):
+            if self.clusters[i][1] == cluster_name:
+                self.clusters.pop(i)
+                self.cluster_names.pop(i)
+                break
+        
+    
+    def set_new_cluster_name(self, new_cluster_name):
+        """
+        Args:
+            new_cluster_name: The new cluster name.
+        """
+        self.new_cluster_name = new_cluster_name
+    
+    def login(self, email, password):
+        """
+        Args:
+            email: The email.
+            password: The password.
+        """
+
+        if Auth.get_user(email):
+            if Auth.authenticate_user(email, password):
+                self.authenticated_user = True
+            else:
+                rx.alert("Incorrect password")
+        else:
+            print('user does not exist')
+            if email != "" and password != "":
+                Auth.create_new_user(email, password)
+                self.authenticated_user = True
+                print('This happened')
+                rx.redirect("/", True)
+    
     def logout(self):
         self.authenticated_user = False
-        
+
     def connect_google(self):
-        if self.authenticated_user:
-            create_emails_info_table()
-            main()
-            self.email_list = get_json_from_database()
-            self.have_emails = True
-            
+        if os.path.exists('token.json'):
+            os.remove('token.json')
+        create_emails_info_table()
+        main()
+        self.email_data = get_json_from_database()
+        self.have_emails = True

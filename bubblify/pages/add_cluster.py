@@ -31,6 +31,9 @@ def add_cluster() -> rx.Component:
                 rx.input(on_blur=lambda val : State.set_new_cluster_name(val)),
                 rx.button(rx.text("Add Cluster"), on_click=lambda : State.add_cluster(State.new_cluster_name))
                 )
-            )
+            ),
+            width="400px",
+            justify_content="center",
+            align_items="center",
 
     )
