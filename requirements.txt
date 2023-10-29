@@ -63,3 +63,7 @@ watchfiles==0.19.0
 websockets==10.4
 wrapt==1.15.0
 wsproto==1.2.0
+psycopg==3.1.12 
+psycopg-binary==3.1.12
+psycopg2==2.9.9
+python-dotenv==1.0.0
