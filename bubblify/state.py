@@ -241,7 +241,7 @@ class State(rx.State):
         new_cluster[self.diameter_index] = cluster[self.diameter_index] / 1.1
 
         self.clusters[cluster[self.index_index]] = tuple(new_cluster)
-        self.clusters = cluster
+
     
     
     def bubble_click(self, cluster):
