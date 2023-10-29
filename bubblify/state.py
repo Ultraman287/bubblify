@@ -137,6 +137,7 @@ class State(rx.State):
     positionx_index: int = 5
     positiony_index: int = 6
     color_index: int = 7
+    z_index_index: int = 8
 
     colors: list[str] = ["#d27cbf", "#d2bf7c", "#7cb3d2", "#7cd2be", "#d27c7c", "#7cd2b3", "#d27cbf", "#7cbfd2"]
     cluster_names : list[str] = ["Work", "School"]
@@ -148,6 +149,12 @@ class State(rx.State):
     email_data: list[dict] = []
     
 
+    prev_index: int = 0
+    prev_diameter: float = 0
+    prev_pos_x: float = 0
+    prev_pos_y: float = 0
+    in_focus: bool = False
+
     def get_clusters(self):
         """Get the clusters from the database.
 
@@ -155,8 +162,6 @@ class State(rx.State):
             The clusters.
         """
 
-        # clusters = {"Work": [{"message": "Email 1", "unread": True}, {"message": "Email 2"}, {"message": "Email 3"}], "School": [{"message": "Email 3"}, {"message": "Email 4"}]
-        # }
         clusters = {}
         for message in self.dummy_data:
             if message["category_name"] not in clusters:
@@ -166,8 +171,7 @@ class State(rx.State):
         diameters = self.get_diameters(clusters)
         positions = self.get_positions(clusters, diameters)
         colors = self.get_colors(clusters)
-        self.clusters = [(i, name, len(clusters[name]), clusters[name], diameters[i], positions[i][0], positions[i][1], colors[i]) for i, name in enumerate(clusters)]
-        print(self.clusters)
+        self.clusters = [(i, name, len(clusters[name]), clusters[name], diameters[i], positions[i][0], positions[i][1], colors[i], 1) for i, name in enumerate(clusters)]
     
     def get_diameters(self, clusters):
         """Get the diameters of the clusters.
@@ -177,8 +181,7 @@ class State(rx.State):
         """
         n = len(clusters)
         min_size = styles.min_bubble_size
-        max_size = max(1200 / n, 600 - ((n - 1) * min_size))
-        print(min_size, max_size)
+        max_size = 1200 / n
         mean = sum([len(clusters[cluster]) for cluster in clusters]) / len(clusters)
         deviations = [(len(clusters[cluster]) - mean)/mean for cluster in clusters]
         diff = (max_size - min_size)/2
@@ -192,48 +195,20 @@ class State(rx.State):
             The positions.
         """
         positions = []
-        x_ranges = [(-600, 600)]
+        n = len(clusters)
+        x_ranges = [(-600 + i*(1200/n), -600 + (i+1)*(1200/n)) for i in range(n)]
 
-        for i in range(len(clusters)):
+        for i in range(n):
             diameter = diameters[i]
 
-            prev_length = len(x_ranges)
-            discard = []
-            for j in range(prev_length):
-                if (x_ranges[j][1] - x_ranges[j][0]) > diameter:
-                    x_ranges.append((x_ranges[j][0], x_ranges[j][1] - diameter))
-                else:
-                    discard.append(x_ranges[j])
+            x_range_ind = random.choice(range(len(x_ranges)))
 
-            for _ in range(prev_length):
-                x_ranges.pop(0)
+            x = random.uniform(x_ranges[x_range_ind][0], x_ranges[x_range_ind][1] - diameter)
 
-            print("A", x_ranges)
-            x_range_ind = random.choices(range(len(x_ranges)), weights=[(x_ranges[j][1] - x_ranges[j][0]) for j in range(len(x_ranges))])[0]
-
-            print("B", diameter, x_range_ind)
-
-            x = random.uniform(x_ranges[x_range_ind][0], x_ranges[x_range_ind][1])
-
-            x_ranges.append((x_ranges[x_range_ind][0], x - diameter))
-            x_ranges.append((x + diameter, x_ranges[x_range_ind][1]))
-    
             x_ranges.pop(x_range_ind)
-
-            prev_length = len(x_ranges)
-            for j in range(prev_length):
-                x_ranges.append((x_ranges[j][0], x_ranges[j][1] + diameter))
-
-            for _ in range(prev_length):
-                x_ranges.pop(0)
-
-            for x_range in discard:
-                x_ranges.append(x_range)
 
             y = random.uniform(-(800 - diameter)/2, (800 - diameter)/2)
             
-            print("C", x, x + diameter)
-            print("D", x_ranges)
             positions.append((x, y - (diameter/2)))
         return positions
     
@@ -268,7 +243,45 @@ class State(rx.State):
         self.clusters[cluster[self.index_index]] = tuple(new_cluster)
         self.clusters = cluster
     
+    
+    def bubble_click(self, cluster):
+        """Click the bubble.
 
+        Returns:
+            The new bubble size.
+        """
+        self.in_focus = True
+        self.prev_index = cluster[self.index_index]
+        self.prev_diameter = cluster[self.diameter_index]
+        self.prev_pos_x = cluster[self.positionx_index]
+        self.prev_pos_y = cluster[self.positiony_index]
+
+        new_cluster = list(cluster)
+        new_cluster[self.diameter_index] = cluster[self.diameter_index] * 2 
+        new_cluster[self.positionx_index] = -(new_cluster[self.diameter_index] / 2)
+        new_cluster[self.positiony_index] = -(new_cluster[self.diameter_index] / 2)
+        new_cluster[self.z_index_index] = 3
+
+        self.clusters[cluster[self.index_index]] = tuple(new_cluster)
+
+    def bubble_close(self):
+        """Close the bubble.
+
+        Returns:
+            The new bubble size.
+        """
+        if not self.in_focus:
+            return
+        
+        self.in_focus = False
+        cluster = self.clusters[self.prev_index]
+        new_cluster = list(cluster)
+        new_cluster[self.diameter_index] = self.prev_diameter
+        new_cluster[self.positionx_index] = self.prev_pos_x
+        new_cluster[self.positiony_index] = self.prev_pos_y
+        new_cluster[self.z_index_index] = 1
+
+        self.clusters[cluster[self.index_index]] = tuple(new_cluster)
     
     def add_cluster(self, cluster_name):
         """
