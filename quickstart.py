@@ -1,7 +1,8 @@
 from __future__ import print_function
 
 import os.path
-from bubblify.helpers.sql_helpers import get_json_from_database, create_categories, insert_email_info, execute_sql_query, conn, insert_categorized_email
+
+from bubblify.helpers.sql_helpers import get_json_from_database, create_categories, insert_email_info, execute_sql_query, conn, insert_categorized_email, create_emails_info_table
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -84,7 +85,7 @@ def main():
                     break
 
             # Extract the snippet
-            snpt = message['snippet'][:255]  # TODO: make this a config var
+            snpt = message['snippet'] # TODO: make this a config var
 
             # Extract all label tags
             label_tags = [label for label in message['labelIds'] if label != 'UNREAD']
@@ -120,5 +121,6 @@ def main():
 
 
 if __name__ == '__main__':
-    #main()
+    create_emails_info_table()
+    main()
     get_json_from_database()
