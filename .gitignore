@@ -4,4 +4,10 @@
 __pycache__/
 venv/
 .env
+token.json
+google-chrome-stable_current_amd64.deb
 credentials.json
+
+venv/
+
+

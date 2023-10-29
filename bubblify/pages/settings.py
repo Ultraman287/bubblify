@@ -4,6 +4,7 @@ from bubblify.templates import template
 
 import reflex as rx
 
+from ..state import State
 
 @template(route="/settings", title="Settings", image="/settings.svg")
 def settings() -> rx.Component:
@@ -12,11 +13,11 @@ def settings() -> rx.Component:
     Returns:
         The UI for the settings page.
     """
-    return rx.vstack(
-        rx.heading("Settings", font_size="3em"),
-        rx.text("Welcome to Reflex!"),
-        rx.text(
-            "You can edit this page in ",
-            rx.code("{your_app}/pages/settings.py"),
-        ),
+    val: str = "Hello"
+    
+    _main = rx.vstack(
+        rx.button("Connect to Gmail", on_click=State.connect_google),
+        rx.cond(State.have_emails, rx.text("We've got your emails!"),  rx.text("You don't have emails, lonely fuck!")),
     )
+    
+    return _main

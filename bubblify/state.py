@@ -1,11 +1,13 @@
 """Base state for the app."""
-
+from bubblify.helpers.sql_helpers import get_json_from_database, create_categories, insert_email_info, execute_sql_query, conn, insert_categorized_email, create_emails_info_table
 import reflex as rx
 from collections import Counter
 
 import random
 
 from bubblify import styles
+from .utils.auth import Auth
+from quickstart import main
 
 class State(rx.State):
     """Base state for the app.
@@ -130,6 +132,14 @@ class State(rx.State):
     color_index: int = 7
 
     colors: list[str] = ["#d27cbf", "#d2bf7c", "#7cb3d2", "#7cd2be", "#d27c7c", "#7cd2b3", "#d27cbf", "#7cbfd2"]
+    clusters : dict[str, list[dict[str, str]]] = {"Work": [{"message": "Email 1"}, {"message": "Email 2"}], "School": [{"message": "Email 3"}, {"message": "Email 4"}]}
+    cluster_names : list[str] = ["Work", "School"]
+    new_cluster_name : str = ""
+    current_email: str = ""
+    current_password: str = ""
+    authenticated_user: bool = False
+    email_list: list[dict[str, str]] 
+    have_emails: bool = False
 
     def get_clusters(self):
         """Get the clusters from the database.
@@ -249,3 +259,13 @@ class State(rx.State):
         new_cluster[self.diameter_index] = cluster[self.diameter_index] / 1.1
 
         self.clusters[cluster[self.index_index]] = tuple(new_cluster)
+    def logout(self):
+        self.authenticated_user = False
+        
+    def connect_google(self):
+        if self.authenticated_user:
+            create_emails_info_table()
+            main()
+            self.email_list = get_json_from_database()
+            self.have_emails = True
+            
